@@ -1,0 +1,83 @@
+.star-tool{
+    position: absolute;
+    right: 20px;
+    top: 60px;
+}
+.star-text{
+	position: relative;
+    padding: 15px 0 0;
+    clear: both;
+    color: #373737;
+    clear: both;
+}
+.star-text-h1{
+	color: #393D49; font-size: 28px; font-weight: 300; margin: 0px 10px 10px 0px; padding-top: 15px;
+}
+.star-page{
+	margin: 10px 20px;
+}
+.star-page .active{
+	background-color:#009688;
+}
+.star-page .star-total{
+	display: inline-block;
+	margin: 10px 0px;
+}
+.star-uploadbox{
+	padding:20px;
+}
+.star-uploader{
+	height: 40px;
+    margin: 5px;
+    width: 40px;
+    text-align: center;
+    line-height: 40px;
+    display: block;
+    cursor: pointer;
+}
+.star-dash{
+	border: 1px dashed #DDD;
+}
+.star-bgwhite{
+	background-color: #FFF;
+}
+.star-imagepath{
+
+}
+.star-imagepreview{
+	width: 80px;
+	height: 60px;
+}
+.star-imagepreview img{
+	width: 100%;
+	height: 100%;
+}
+.star-progressbox{
+	height: 100%;
+}
+.star-progressbar{
+	width: 0%;
+	height: 100%;
+	background-color: #009688;
+}
+.star-left{
+	float: left;
+}
+.star-right{
+	float: right;
+}
+.star-clear{
+	clear: both;
+}
+.star-hide{
+	display: none;
+}
+.star-select100{
+	width: 100px;
+}
+.star-size20{
+	font-size: 20px;
+}
+.star-mt20{
+	margin-top: 20px;
+}
