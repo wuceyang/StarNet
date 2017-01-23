@@ -60,6 +60,10 @@
 	height: 100%;
 	background-color: #009688;
 }
+.star-sub{
+	margin-left: 40px;
+}
+/************公共属性***************/
 .star-left{
 	float: left;
 }

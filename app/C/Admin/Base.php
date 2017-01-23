@@ -208,31 +208,64 @@
 		 */
 		private function initSideBar(){
 
-			$menus = [
-						'海报管理' => [
+			return  [
+						[
+							'text' => '海报管理',
+							'icon' => '&#xe60d;',
+							'flag' => 'advertise',
+							'sub'  => [
 										'头图管理' => '/admin/advertise/adv-img',
 										'推荐主播' => '/admin/advertise/recommend',
 										'合作伙伴' => '/admin/advertise/index',
-									 ],
-						'发布系统' => [
+									  ]
+						],
+						[
+							'text' => '发布系统',
+							'icon' => '&#xe63a;',
+							'flag' => 'content',
+							'sub'  => [
 										'发布内容' => '/admin/content/publish',
-										'最新咨询' => '/admin/content/latest',
+										'最新资讯' => '/admin/content/latest',
 										'精彩视频' => '/admin/content/video',
 										'原创音乐' => '/admin/content/music',
-									 ],
-						'商务合作' => [
+									  ],
+						],
+						[
+							'text' => '商务合作',
+							'icon' => '&#xe62a;',
+							'flag' => 'business',
+							'sub'  => [
+
 										'合作列表' => '/admin/business/index',
 										'新增合作' => '/admin/business/addnew',
-									 ],
-						'主播管理' => [
+									  ],
+						],
+						[
+							'text' => '主播管理',
+							'icon' => '&#xe61b;',
+							'flag' => 'actress',
+							'sub'  => [
 										'新增主播' => '/admin/actor/addnew',
 										'主播列表' => '/admin/actor/index',
-									 ],
-						'应聘管理' => '/admin/employee/index',
-						'系统管理' => '/admin/system/index',
-					 ];
-
-            return $menus;
+									  ],
+						],
+						[
+							'text' => '应聘管理',
+							'icon' => '&#xe63c;',
+							'flag' => 'employee',
+							'sub'  => [
+										'应聘主播' => '/admin/employee/index'
+									  ]
+						],
+						[
+							'text' => '系统管理',
+							'icon' => '&#xe631;',
+							'flag' => 'system',
+							'sub'  => [
+										'系统管理' => '/admin/system/index',
+									  ]
+						]
+					];
 		}
 
 		//正文内容处理
