@@ -1,0 +1,212 @@
+<extend from="admin/base.html"/>
+
+<define name="content"/>
+<div class="star-text">
+  <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px; margin-right: 120px;">
+    <legend>内容发布</legend>
+  </fieldset>
+  <form class="layui-form" action="">
+    <div class="layui-form-item">
+        <label class="layui-form-label">文章标题</label>
+        <div class="layui-input-inline">
+            <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">发布类型</label>
+        <div class="layui-input-block">
+            <loop $type $k $v/>
+            <input type="radio" name="type" value="<=$k/>" title="<=$v/>"/>
+            </loop/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">文章配图:</label>
+        <div class="layui-input-inline" id="image">
+            <div class="star-imagepath star-dash star-left star-hide"></div>
+            <div class="star-uploader star-dash star-left" data-bucket="image" id="imageuploader"><i class="layui-icon">&#xe61f;</i></div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">视频短片:</label>
+        <div class="layui-input-inline" id="video">
+            <div class="star-imagepath star-dash star-left star-hide"></div>
+            <div class="star-uploader star-dash star-left" data-bucket="video" id="videouploader"><i class="layui-icon">&#xe61f;</i></div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">发布日期:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="date" lay-verify="date" autocomplete="off" class="layui-input star-date" value="<=date('Y-m-d')/>">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">是否热门:</label>
+        <div class="layui-input-inline">
+            <input type="checkbox" name="ishot" lay-skin="switch" title="是">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">内容正文:</label>
+        <div class="layui-input-block">
+            <div id="editor"></div>
+        </div>
+    </div>
+  </form>
+</div>
+</define/>
+
+<define name="css"/>
+<link rel="stylesheet" href="<=__RESPATH__/>/theme/res/css/star.css"/>
+</define/>
+
+<define name="js"/>
+<script type="text/javascript" src="<=__RESPATH__/>/plugin/qiniu/pupload/moxie.js"></script>
+<script type="text/javascript" src="<=__RESPATH__/>/plugin/qiniu/qiniu.cs.js"></script>
+<script type="text/javascript" src="<=__RESPATH__/>/plugin/qiniu/pupload/pupload.cs.js"></script>
+<script type="text/javascript">
+
+layui.use(['jquery', 'layer', 'upload', 'form','layedit'], function(){
+
+    var $ = layui.jquery, layer = layui.layer, form = layui.form(), editor = layui.layedit;
+
+    var configure = {tool: [
+                              'strong' //加粗
+                              ,'italic' //斜体
+                              ,'underline' //下划线
+                              ,'del' //删除线
+                              ,'|' //分割线
+                              ,'left' //左对齐
+                              ,'center' //居中对齐
+                              ,'right' //右对齐
+                              ,'link' //超链接
+                              ,'unlink' //清除链接
+                              ,'face' //表情
+                              // ,'image' //插入图片
+                              // ,'help' //帮助
+                            ]
+                    };
+
+    var editorbox   = editor.build('editor', configure);
+
+    $('.previewbtn').on('click', function(){
+
+        var imgpath = $(this).data('url');
+
+        layer.open({
+          type: 1,
+          title: "图片预览",
+          closeBtn: 0,
+          skin: 'layui-layer-nobg', //没有背景色
+          shadeClose: true,
+          content: '<img src="' + imgpath + '"/>',
+          scrollbar : false
+        });
+    });
+
+    var buckets = {
+                image: 'http://oh0w1vops.bkt.clouddn.com',
+                video: 'http://oh0xnhx0h.bkt.clouddn.com',
+                audio: 'http://oistx3ss2.bkt.clouddn.com',
+                other: 'http://oh0x57g5y.bkt.clouddn.com',
+              };
+    //已删除的文件
+    var deletefile = {};
+
+    $('#imageuploader, #videouploader').each(function(){
+
+        var _this = this;
+        //标记是否上传完成，未完成则不能提交表单
+        var uploaded = true;
+        var bucket   = $(this).data('bucket');
+        var thisId   = $(this).attr('id');
+        var pNode    = $(this).parent('div')[0];
+        var upParams = {
+                runtimes: 'html5,flash,html4',      // 上传模式,依次退化
+                uptoken_url: '/admin/upload/token?bucket=' + bucket,
+                get_new_uptoken: true,
+                multi_selection: false,
+                unique_names: true,
+                domain: buckets[bucket],
+                max_file_size: '100mb',
+                flash_swf_url: '<=__RESPATH__/>/plugin/qiniu/pupload/moxie.swf',
+                silverlight_xap_url : '<=__RESPATH__/>/plugin/qiniu/pupload/moxie.xap',
+                max_retries: 3,
+                chunk_size: '4mb',
+                unique_names: true,
+                auto_start: true,
+                container: pNode,
+                browse_button: thisId,
+                init:{
+                    FileUploaded: function(uploader, fileinfo){
+                        
+                    },
+                    BeforeUpload: function(){
+                        uploaded = false;
+                        $('<div class="star-imagepreview star-left"><div class="star-progressbox"><div class="star-progressbar"></div></div></div>').appendTo($('.star-imagepath', pNode));
+                        $('.star-imagepath', pNode).removeClass('star-hide');
+                    },
+                    FileUploaded: function(uploader, fileinfo, retinfo){
+                        retinfo = $.parseJSON(retinfo);
+                        uploaded        = true;
+                        var preview     = [];
+                        var fieldName   = bucket;
+                        var url = buckets[bucket] + '/' + retinfo.key;
+                        var previewhtml = '<img src="' + url + '"/>';
+                            preview.push('<div title="点击删除当前项" class="star-imagepreview" data-id="' + fileinfo.id + '"><input type="hidden" name="' + fieldName + '" value="' + url + '">' + previewhtml + '</div>');
+                        $('.star-imagepath').html($(preview.join('') + '<div class="star-clear"></div>'));
+                        $('.star-uploader', pNode).hide();
+                    },
+                    UploadProgress: function(uploader, info){
+                        $('.star-progressbar', pNode).css({'width': info.percent + '%'});
+                    },
+                    Error: function(){
+                        layer.msg('图片上传失败啦', {icon: 5});
+                        $('.star-imagepath', pNode).html('');
+                        $('.star-imagepath', pNode).addClass('star-hide');
+                        $('.star-uploader', pNode).show();
+                    }
+                }
+            };
+
+            var qiniu = new QiniuJsSDK();
+
+            qiniu.uploader(upParams);
+
+            $('#upform').on('submit', function(){
+
+                if(!uploaded){
+
+                    layer.alert('文件还未上传完成,请稍后提交', {icon: 5});
+
+                    return false;
+                }
+
+                return true;
+            })
+    })
+
+    $('.star-imagepath').delegate('.star-imagepreview', 'click', function(){
+
+        var _this = this;
+
+        var cnfbox = layer.confirm('确认删除当前文件吗?', {icon: 3, title: '删除确认'}, function(){
+
+            var previewBox = $(_this).parent('div');
+
+            $(_this).remove();
+
+            if(previewBox.find('.star-imagepreview').size() == 0){
+
+                previewBox.html('');
+            }
+
+            layer.close(cnfbox);
+
+            $('.star-uploader', $(previewBox).parent('div')).show();
+        });
+    })
+
+})
+</script>>
+</define/>
