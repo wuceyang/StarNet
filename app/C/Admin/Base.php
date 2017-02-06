@@ -289,4 +289,9 @@
 
 			return array_flip(Enum::Position);
 		}
+
+		public function getContentType(){
+
+			return array_flip(Enum::ContentType);
+		}
 	}

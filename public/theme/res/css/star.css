@@ -27,11 +27,11 @@
 	padding:20px;
 }
 .star-uploader{
-	height: 40px;
+	height: 36px;
     margin: 5px;
-    width: 40px;
+    width: 36px;
     text-align: center;
-    line-height: 40px;
+    line-height: 36px;
     display: block;
     cursor: pointer;
 }
@@ -84,4 +84,7 @@
 }
 .star-mt20{
 	margin-top: 20px;
+}
+.star-date{
+	width: 100px;
 }

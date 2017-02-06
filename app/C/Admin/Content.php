@@ -63,61 +63,11 @@
             return $resp->withVars($param)->withView('admin/content_list.html')->display();
         }
 
-        public function addContent(Request $req, Response $resp){
+        public function publish(Request $req, Response $resp){
 
             if(!$req->isPost()){
 
-                $category       = new Category();
-
-                $catid          = intval($req->get('catid'));
-
-                $catInfo        = $category->getInfoById($catid);
-
-                if(!$catInfo){
-
-                    return $this->error("找不到指定的栏目信息",101, "/admin/content/add-content");
-                }
-
-                $catlist = $category->getCategoryList(null, Enum::STATUS_NORMAL, true);
-
-                $cats    = [];
-
-                foreach($catlist as $k => $v){
-
-                    if(!isset($cats[$v['parent_id']])){
-
-                        $cats[$v['parent_id']] = [];
-                    }
-
-                    $cats[$v['parent_id']][] = [
-                                                'info' => $v,
-                                                'sub'  => &$cats[$v['id']]
-                                                ];
-                }
-
-                $this->setFormToken($req, $resp);
-
-                $contentType    = new ContentType();
-
-                $recommend      = new Recommend();
-
-                $category       = new Category();
-
-                $template       = new Template();
-
-                $params = [
-                            'typeList'      => $contentType->getTypeList(Enum::STATUS_NORMAL),
-                            'recommendList' => $recommend->getRecommendList(Enum::STATUS_NORMAL),
-                            'catinfo'       => $catInfo, 
-                            'catlist'       => $cats,
-                            'tpllist'       => $template->getTemplateList(Enum::STATUS_NORMAL),
-                            'authorinfo'    => $this->userinfo,
-                          ];
-
-                $params['tags'] = [
-                                    ['id' => 1, 'tagName' => '精华'],
-                                    ['id' => 2, 'tagName' => '置顶'],
-                                  ];
+                $params = ['type' => $this->getContentType()];
 
                 return $resp->withVars($params)->withView('admin/content_add.html')->display();
             }

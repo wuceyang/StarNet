@@ -11,7 +11,11 @@
 
         public function init(){
 
+            $sessionConfig = Config::get('global.cookie');
+
             session_save_path($this->_config['saveDir']);
+
+            session_set_cookie_params($sessionConfig['maxLifetime'], $sessionConfig['path'], $sessionConfig['domain'], $sessionConfig['sslOnly'], $sessionConfig['httpOnly']);
 
             session_name($this->_config['cookieName']);
         }
