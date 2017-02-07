@@ -7,25 +7,46 @@
 
     class Actor extends Base{
 
-        public function getActor(Request $req, Response $resp){
+        public function addnew(Request $req, Response $resp){
 
-            $actorName = trim($req->post('actorName'));
+            if(!$req->isPost()){
 
-            if(!$actorName){
-
-                return $this->error("");
+                return $resp->withView('admin/actor_add.html')->display();
             }
 
-            $actor      = new mActor();
+            $actorName = trim($req->post('name'));
 
-            $actorinfo  = $actor->getActorByName($actorName);
+            $gender    = intval($req->post('gender'));
 
-            if(!$actorinfo){
+            $startTime = trim($req->post('start'));
 
-                return $this->error("找不到任何主播", 101);
-            }
+            $signYear  = intval($req->post('year'));
 
-            return $this->success('', '', ['id' => $actorinfo['aid'], 'nickname' => $actorinfo['nickname']]);
+            $nickName  = trim($req->post('nick'));
+
+            $stayCity  = trim($req->post('city'));
+
+            $birthDate = trim($req->posrt('birthday'));
+
+            $tall      = intval($req->post('tall'));
+
+            $mobile    = trim($req->post('mobile'));
+
+            $wechat    = trim($req->post('wechat'));
+
+            $platform  = $req->post('platform');
+
+            $hotdegree = intval($req->post('hotdegree'));
+
+            $followers = intval($req->post('follower'));
+
+            $talent    = $req->post('talent');
+
+            $experience= $req->post('expr');
+
+            $photos    = $req->post('photos');
+
+            $video     = $req->post('video'); 
         }
 
         public function search(Request $req, Response $resp){

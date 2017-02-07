@@ -3,62 +3,49 @@
 
     use \Request;
     use \Response;
-    use \App\M\Template;
-    use \App\M\Category;
     use \App\Helper\Enum;
-    use \App\M\Recommend;
-    use \App\M\ContentType;
     use \App\M\Content AS mContent;
 
     class Content extends Base{
 
-        public function index(Request $req, Response $resp){
+        public function latest(Request $req, Response $resp){
 
-            $pagesize     = 20;
+            return $this->newslist('最新资讯', $req, $resp);
+        }
 
-            $page         = max(1, intval($req->get('page')));
+        public function video(Request $req, Response $resp){
 
-            $kw           = trim($req->get('kw'));
+            return $this->newslist('精彩视频', $req, $resp);
+        }
 
-            $status       = intval($req->get('status'));
+        public function music(Request $req, Response $resp){
 
-            $tplid        = intval($req->get('tplid'));
+            return $this->newslist('原创音乐', $req, $resp);
+        }
 
-            $catid        = intval($req->get('catid'));
+        protected function newslist($type, &$req, &$resp){
 
-            $content      = new mContent();
+            $page       = max(1, intval($req->get('page')));
 
-            $contentList  = $content->getContentList($kw, $catid, $tplid, $status, $page, $pagesize);
+            $pagesize   = 20;
 
-            $contentTotal = $content->getContentTotal($kw, $catid, $tplid, $status);
+            $contentType= Enum::ContentType[$type];
 
-            $param        = [];
+            $content    = new mContent();
 
-            if($kw){
+            $list       = $content->getContentList($contentType, Enum::Status['normal'], $page, $pagesize);
 
-                $param['kw']     = $kw;
-            }
+            $total      = $content->getContentTotal($contentType, Enum::Status['normal']);
 
-            if($status){
+            $param      = [];
 
-                $param['status'] = $status;
-            }
+            $pageParams = $this->getPageInfo($req->server('REQUEST_URI'), $page, $total, $param, $pagesize);
 
-            if($tplid){
+            $param['pageParam'] = $pageParams;
 
-                $param['tplid']   = $tplid;
-            }
+            $param['type'] = $type;
 
-            if($catid){
-
-                $param['catid']  = $catid;
-            }
-
-            $pageInfo             = $this->getPageInfo("/admin/content", $page, $contentTotal, $param, $pagesize);
-
-            $param['list']        = $contentList;
-
-            $param                = $param + $pageInfo;
+            $param['list'] = $list;
 
             return $resp->withVars($param)->withView('admin/content_list.html')->display();
         }
@@ -72,59 +59,52 @@
                 return $resp->withVars($params)->withView('admin/content_add.html')->display();
             }
 
-            if(!$this->formTokenValidate($req, $resp)){
-
-                return $this->error("请不要提交非法数据", 102, "/admin/content/add-content");
-            }
-
             $title   = trim($req->post('title'));
 
-            $catid   = intval($req->post('catid'));
+            $type    = intval($req->post('type'));
 
-            $summary = trim($req->post('summary'));
+            $image   = trim($req->post('image'));
 
-            $author  = trim($req->post('author'));
+            $video   = trim($req->post('video'));
 
-            $source  = trim($req->post('source'));
+            $date    = trim($req->post('date'));
 
-            $kw      = trim($req->post('kw'));
+            $ishot   = trim($req->post('ishot'));
 
-            $tplid   = intval($req->post('tplid'));
-
-            $content = trim($req->post('content'));
-
-            $data    = json_encode($req->post('data', []));
+            $text    = trim($req->post('content'));
 
             if(!$title){
 
                 return $this->error("标题不能为空", 101, 'javascript:history.back()');
             }
 
+            $newsTypes = $this->getContentType();
+
             $title    = htmlspecialchars($title);
 
-            $category = new Category();
+            if(!isset($newsTypes[$type])){
 
-            if(!$catid || !($catinfo = $category->getInfoById($catid))){
-
-                return $this->error("找不到指定的分类", 101, "javascript:history.back()");
+                return $this->error("请选择文章类型", 101, 'javascript:history.back()');
             }
 
-            $summary = $summary ? $summary : htmlspecialchars($summary);
+            if(!$image){
 
-            $author  = $author ? htmlspecialchars($author) : '';
-
-            $source  = $source ? htmlspecialchars($source) : '';
-
-            $kw      = $kw ? htmlspecialchars($kw) : '';
-
-            if(!$tplid){
-
-                $tplid = intval($catInfo['tplid']);
+                return $this->error("请上传文章配图", 101, 'javascript:history.back()');
             }
 
-            $content = new Content();
+            if(!$text){
 
-            if(!$content->addContent($title, $catid, $summary, $content, $kw, $author, $source, $tplid, $data, $this->userinfo['id'])){
+                return $this->error("请填写文章内容", 101, 'javascript:history.back()');
+            }
+
+            if(!$date){
+
+                $date = date('Y-m-d');
+            }
+
+            $content = new mContent();
+
+            if(!$content->addContent($title, $type, $image, $video, $date, $ishot, $text, $this->userinfo['ID'])){
 
                 return $this->error("文章录入失败", "javascript:history.back()");
             }

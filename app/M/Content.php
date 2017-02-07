@@ -3,31 +3,17 @@
 
     class Content extends Model{
 
-        public static $table = 'cms_content';
+        public static $table = 'Actress_News';
 
-        public function getContentList($kw, $catid, $contentType, $status, $page = 0, $pagesize = 20){
+        public function getContentList($newsType, $status, $page = 0, $pagesize = 20){
 
             $where = $param = [];
 
-            if($kw){
+            if($newsType){
 
-                $where[] = 'title LIKE ?';
+                $where[] = 'NewsType = ?';
 
-                $param[] = "%" . addcslashes($kw, '%_') . "%";
-            }
-
-            if($catid){
-
-                $catid = is_array($catid) ? array_map('intval', $catid) : [intval($catid)];
-
-                $where[] = 'catid IN (' . implode(',', $catid) . ')';
-            }
-
-            if($contentType){
-
-                $where[] = 'content_type = ?';
-
-                $param[] = intval($contentType);
+                $param[] = intval($newsType);
             }
 
             if($status){
@@ -42,32 +28,18 @@
                 $this->page($page)->pagesize($pagesize);
             }
 
-            return $this->getRows(implode(' AND ', $where), $param);
+            return $this->orderBy(['ID DESC'])->getRows(implode(' AND ', $where), $param);
         }
 
-        public function getContentTotal($kw, $catid, $contentType, $status, $page = 0, $pagesize = 20){
+        public function getContentTotal($newsType, $status, $page = 0, $pagesize = 20){
 
             $where = $param = [];
 
-            if($kw){
+            if($newsType){
 
-                $where[] = 'title LIKE ?';
+                $where[] = 'NewsType = ?';
 
-                $param[] = "%" . addcslashes($kw, '%_') . "%";
-            }
-
-            if($catid){
-
-                $catid = is_array($catid) ? array_map('intval', $catid) : [intval($catid)];
-
-                $where[] = 'catid IN (' . implode(',', $catid) . ')';
-            }
-
-            if($contentType){
-
-                $where[] = 'content_type = ?';
-
-                $param[] = intval($contentType);
+                $param[] = intval($newsType);
             }
 
             if($status){
@@ -80,19 +52,17 @@
             return $this->getCount(implode(' AND ', $where), $param);
         }
 
-        public function addContent($title, $catid, $summary, $content, $keyword, $author, $source, $templateid, $tplid, $data,$createuid){
+        public function addContent($title, $type, $image, $video, $date, $ishot, $content, $creatorid){
 
             $params = [
-                'title'       => $title,
-                'summary'     => $summary,
-                'author'      => $author,
-                'source'      => $source,
-                'keyword'     => $keyword,
-                'template_id' => intval($templateid),
-                'content'     => $content,
-                'tplid'       => $tplid,
-                'data'        => $data ? json_encode($data) : '',
-                'create_uid'  => intval($createuid),
+                'Title'       => $title,
+                'ListImage'   => $image,
+                'Attachment'  => $video,
+                'NewsType'    => $type,
+                'Content'     => $content,
+                'IsRecommend' => intval($ishot),
+                'CreatorID'   => $content,
+                'CreateTime'  => intval($creatorid)
             ];
 
             return $this->insert($params);

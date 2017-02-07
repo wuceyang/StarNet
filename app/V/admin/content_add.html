@@ -5,7 +5,7 @@
   <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px; margin-right: 120px;">
     <legend>内容发布</legend>
   </fieldset>
-  <form class="layui-form" action="">
+  <form class="layui-form" action="/admin/content/publish" method="post">
     <div class="layui-form-item">
         <label class="layui-form-label">文章标题</label>
         <div class="layui-input-inline">
@@ -24,14 +24,18 @@
         <label class="layui-form-label">文章配图:</label>
         <div class="layui-input-inline" id="image">
             <div class="star-imagepath star-dash star-left star-hide"></div>
-            <div class="star-uploader star-dash star-left" data-bucket="image" id="imageuploader"><i class="layui-icon">&#xe61f;</i></div>
+            <div class="star-left star-uploadbox">
+                <div class="star-uploader star-dash" data-bucket="image" id="imageuploader"><i class="layui-icon">&#xe61f;</i></div>
+            </div>
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">视频短片:</label>
         <div class="layui-input-inline" id="video">
             <div class="star-imagepath star-dash star-left star-hide"></div>
-            <div class="star-uploader star-dash star-left" data-bucket="video" id="videouploader"><i class="layui-icon">&#xe61f;</i></div>
+            <div class="star-left star-uploadbox">
+                <div class="star-uploader star-dash" data-bucket="video" id="videouploader"><i class="layui-icon">&#xe61f;</i></div>
+            </div>
         </div>
     </div>
     <div class="layui-form-item">
@@ -48,8 +52,13 @@
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">内容正文:</label>
-        <div class="layui-input-block">
+        <div class="layui-input-block star-editor" data-field="content">
             <div id="editor"></div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn layui-btn-normal layui-btn-big submitbtn"> 保 存 </button>
         </div>
     </div>
   </form>
@@ -66,9 +75,14 @@
 <script type="text/javascript" src="<=__RESPATH__/>/plugin/qiniu/pupload/pupload.cs.js"></script>
 <script type="text/javascript">
 
-layui.use(['jquery', 'layer', 'upload', 'form','layedit'], function(){
+layui.use(['jquery', 'layer', 'upload', 'form','layedit', 'laydate'], function(){
 
     var $ = layui.jquery, layer = layui.layer, form = layui.form(), editor = layui.layedit;
+
+    $('input[name=date]').on('click', function(){
+
+        layui.laydate({elem: this});
+    });
 
     var configure = {tool: [
                               'strong' //加粗
@@ -121,6 +135,7 @@ layui.use(['jquery', 'layer', 'upload', 'form','layedit'], function(){
         var bucket   = $(this).data('bucket');
         var thisId   = $(this).attr('id');
         var pNode    = $(this).parent('div')[0];
+        var rNode    = $(pNode).parent('div');
         var upParams = {
                 runtimes: 'html5,flash,html4',      // 上传模式,依次退化
                 uptoken_url: '/admin/upload/token?bucket=' + bucket,
@@ -143,8 +158,8 @@ layui.use(['jquery', 'layer', 'upload', 'form','layedit'], function(){
                     },
                     BeforeUpload: function(){
                         uploaded = false;
-                        $('<div class="star-imagepreview star-left"><div class="star-progressbox"><div class="star-progressbar"></div></div></div>').appendTo($('.star-imagepath', pNode));
-                        $('.star-imagepath', pNode).removeClass('star-hide');
+                        $('<div class="star-imagepreview star-left"><div class="star-progressbox"><div class="star-progressbar"></div></div></div>').appendTo($('.star-imagepath', rNode));
+                        $('.star-imagepath', rNode).removeClass('star-hide');
                     },
                     FileUploaded: function(uploader, fileinfo, retinfo){
                         retinfo = $.parseJSON(retinfo);
@@ -155,16 +170,16 @@ layui.use(['jquery', 'layer', 'upload', 'form','layedit'], function(){
                         var previewhtml = '<img src="' + url + '"/>';
                             preview.push('<div title="点击删除当前项" class="star-imagepreview" data-id="' + fileinfo.id + '"><input type="hidden" name="' + fieldName + '" value="' + url + '">' + previewhtml + '</div>');
                         $('.star-imagepath').html($(preview.join('') + '<div class="star-clear"></div>'));
-                        $('.star-uploader', pNode).hide();
+                        $('.star-uploader', rNode).hide();
                     },
                     UploadProgress: function(uploader, info){
-                        $('.star-progressbar', pNode).css({'width': info.percent + '%'});
+                        $('.star-progressbar', rNode).css({'width': info.percent + '%'});
                     },
                     Error: function(){
                         layer.msg('图片上传失败啦', {icon: 5});
-                        $('.star-imagepath', pNode).html('');
-                        $('.star-imagepath', pNode).addClass('star-hide');
-                        $('.star-uploader', pNode).show();
+                        $('.star-imagepath', rNode).html('');
+                        $('.star-imagepath', rNode).addClass('star-hide');
+                        $('.star-uploader', rNode).show();
                     }
                 }
             };
@@ -207,6 +222,33 @@ layui.use(['jquery', 'layer', 'upload', 'form','layedit'], function(){
         });
     })
 
+    reqCallback = function(ret){
+
+        var curtype = $(':radio[name=type]').val();
+
+        var target  = {'1': 'latest', '2': 'video', '3': 'music'};
+
+        layer.confirm("文章保存成功，需要录入更多文章吗？", {title:"系统提示", icon: 3}, function(){
+            top.location.reload();
+        }, function(){
+            top.location.href = '/admin/content/' + target[curtype];
+        });
+    }
+
+    beforeRequest = function(){
+
+        var content     = editor.getContent(editorbox);
+
+        var fieldName   = $('.star-editor',this).data('field');
+        //防止重复点击提交按钮，删除已有的编辑器元素
+        $('input[name=' + fieldName + ']', this).remove();
+
+        var ele         = $('<input name="' + fieldName + '" value="" type="hidden">');
+
+        ele.val(content);
+
+        $('.star-editor',this).append(ele);
+    }
 })
 </script>>
 </define/>

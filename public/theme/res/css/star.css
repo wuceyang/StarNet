@@ -24,12 +24,11 @@
 	margin: 10px 0px;
 }
 .star-uploadbox{
-	padding:20px;
+	height: 36px;
+    width: 36px;
+    margin: 11px;
 }
 .star-uploader{
-	height: 36px;
-    margin: 5px;
-    width: 36px;
     text-align: center;
     line-height: 36px;
     display: block;
