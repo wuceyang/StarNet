@@ -8,8 +8,13 @@
 
 	class BaseController extends Controller{
 
-        public function __construct(Request $req, Response $resp){
+    	public function __construct(Request $req, Response $resp){
 
-			$config = Config::get('global');
-        }
+			$params = [
+						'req'  => &$req,
+						'resp' => &$resp,
+					  ];
+
+			$resp->withVars($params);
+    	}
 	}

@@ -35,7 +35,7 @@
         ],
         //cookie设置
         'cookie' => [
-            'domain'        => '.actor.dev',
+            'domain'        => '',
             'path'          => '/',
             'sslOnly'       => false,
             'httpOnly'      => false,

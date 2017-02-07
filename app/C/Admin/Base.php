@@ -58,8 +58,6 @@
 
 			$params = [
 						'menu' => $this->initSideBar(),
-						'req'  => &$req,
-						'resp' => &$resp,
 					  ];
 
 			$resp->withVars($params);
