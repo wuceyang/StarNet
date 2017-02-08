@@ -1,0 +1,296 @@
+<extend from="admin/base.html"/>
+
+<define name="content"/>
+<div class="star-text">
+  <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px; margin-right: 120px;">
+    <legend>新增主播</legend>
+  </fieldset>
+  <form class="layui-form" action="/admin/content/publish" method="post">
+    <div class="layui-form-item">
+        <label class="layui-form-label">姓名:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="title" lay-verify="title" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">性别</label>
+        <div class="layui-input-block">
+            <loop $gender $k $v/>
+            <input type="radio" name="gender" value="<=$k/>" title="<=$v/>"<if $v == '女'/> checked</if/>/>
+            </loop/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">入职时间:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="start" value="" lay-verify="date" autocomplete="off" class="layui-input star-date" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">签约年限:</label>
+        <div class="layui-input-inline" id="video">
+            <input type="text" name="year" autocomplete="off" class="layui-input star-left star-date"/>
+            <div class="layui-form-mid layui-word-aux"> &nbsp; 年</div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">昵称:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="nick" autocomplete="off" class="layui-input star-date" value="">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">常住城市:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="city" autocomplete="off" class="layui-input" value="">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">出生日期:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="birthday" lay-verify="date" autocomplete="off" class="layui-input star-date" value="">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">身高:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="tall" autocomplete="off" class="layui-input star-date star-left" value="">
+            <div class="layui-form-mid layui-word-aux"> &nbsp; 厘米</div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">联系电话:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="mobile" autocomplete="off" class="layui-input star-date" value="">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">微信帐号:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="wechat" autocomplete="off" class="layui-input star-date" value="">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">直播平台:</label>
+        <div class="layui-input-block">
+            <loop $platform $k $v/>
+            <input type="checkbox" name="type" value="<=$v.Platform/>" title="<=$v.Platform/>"/>
+            </loop/>
+            <button type="button" data-field="platform" data-url="/admin/actor/new-platform" class="layui-btn layui-btn-small newPlatform">新增</button>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">直播人气:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="hotdegree" autocomplete="off" class="layui-input star-date" value="">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">粉丝关注:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="follower" autocomplete="off" class="layui-input star-date" value="">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">直播特长:</label>
+        <div class="layui-input-block">
+            <loop $talent $k $v/>
+            <input type="checkbox" name="type" value="<=$v.TalentName/>" title="<=$v.TalentName/>"/>
+            </loop/>
+            <button type="button" data-field="talent" data-url="/admin/actor/new-talent" class="layui-btn layui-btn-small newTalent">新增</button>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">项目经验:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="expr" autocomplete="off" class="layui-input star-date star-left" value="">
+            <div class="layui-form-mid layui-word-aux"> &nbsp; 年</div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">个人照片:</label>
+        <div class="layui-input-inline" id="image">
+            <div class="star-imagepath star-dash star-left star-hide"></div>
+            <div class="star-left star-uploadbox">
+                <div class="star-uploader star-dash" data-bucket="image" id="imageuploader"><i class="layui-icon">&#xe61f;</i></div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">视频短片:</label>
+        <div class="layui-input-inline" id="video">
+            <div class="star-imagepath star-dash star-left star-hide"></div>
+            <div class="star-left star-uploadbox">
+                <div class="star-uploader star-dash" data-bucket="video" id="videouploader"><i class="layui-icon">&#xe61f;</i></div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn layui-btn-normal layui-btn-big submitbtn"> 保 存 </button>
+        </div>
+    </div>
+  </form>
+</div>
+</define/>
+
+<define name="css"/>
+<link rel="stylesheet" href="<=__RESPATH__/>/theme/res/css/star.css"/>
+</define/>
+
+<define name="js"/>
+<script type="text/javascript" src="<=__RESPATH__/>/plugin/qiniu/pupload/moxie.js"></script>
+<script type="text/javascript" src="<=__RESPATH__/>/plugin/qiniu/qiniu.cs.js"></script>
+<script type="text/javascript" src="<=__RESPATH__/>/plugin/qiniu/pupload/pupload.cs.js"></script>
+<script type="text/javascript">
+
+layui.use(['jquery', 'layer', 'upload', 'form','layedit', 'laydate'], function(){
+
+    var $ = layui.jquery, layer = layui.layer, form = layui.form(), editor = layui.layedit;
+
+    $('input[name=date]').on('click', function(){
+
+        layui.laydate({elem: this});
+    });
+
+    var buckets = {
+                image: 'http://oh0w1vops.bkt.clouddn.com',
+                video: 'http://oh0xnhx0h.bkt.clouddn.com',
+                audio: 'http://oistx3ss2.bkt.clouddn.com',
+                other: 'http://oh0x57g5y.bkt.clouddn.com',
+              };
+    //已删除的文件
+    var deletefile = {};
+
+    $('#imageuploader, #videouploader').each(function(){
+
+        var _this = this;
+        //标记是否上传完成，未完成则不能提交表单
+        var uploaded = true;
+        var bucket   = $(this).data('bucket');
+        var thisId   = $(this).attr('id');
+        var pNode    = $(this).parent('div')[0];
+        var rNode    = $(pNode).parent('div');
+        var upParams = {
+                runtimes: 'html5,flash,html4',      // 上传模式,依次退化
+                uptoken_url: '/admin/upload/token?bucket=' + bucket,
+                get_new_uptoken: true,
+                multi_selection: false,
+                unique_names: true,
+                domain: buckets[bucket],
+                max_file_size: '100mb',
+                flash_swf_url: '<=__RESPATH__/>/plugin/qiniu/pupload/moxie.swf',
+                silverlight_xap_url : '<=__RESPATH__/>/plugin/qiniu/pupload/moxie.xap',
+                max_retries: 3,
+                chunk_size: '4mb',
+                unique_names: true,
+                auto_start: true,
+                container: pNode,
+                browse_button: thisId,
+                init:{
+                    FileUploaded: function(uploader, fileinfo){
+                        
+                    },
+                    BeforeUpload: function(){
+                        uploaded = false;
+                        $('<div class="star-imagepreview star-left"><div class="star-progressbox"><div class="star-progressbar"></div></div></div>').appendTo($('.star-imagepath', rNode));
+                        $('.star-imagepath', rNode).removeClass('star-hide');
+                    },
+                    FileUploaded: function(uploader, fileinfo, retinfo){
+                        retinfo = $.parseJSON(retinfo);
+                        uploaded        = true;
+                        var preview     = [];
+                        var fieldName   = bucket;
+                        var url = buckets[bucket] + '/' + retinfo.key;
+                        var previewhtml = '<img src="' + url + '"/>';
+                            preview.push('<div title="点击删除当前项" class="star-imagepreview" data-id="' + fileinfo.id + '"><input type="hidden" name="' + fieldName + '" value="' + url + '">' + previewhtml + '</div>');
+                        $('.star-imagepath').html($(preview.join('') + '<div class="star-clear"></div>'));
+                        $('.star-uploader', rNode).hide();
+                    },
+                    UploadProgress: function(uploader, info){
+                        $('.star-progressbar', rNode).css({'width': info.percent + '%'});
+                    },
+                    Error: function(){
+                        layer.msg('图片上传失败啦', {icon: 5});
+                        $('.star-imagepath', rNode).html('');
+                        $('.star-imagepath', rNode).addClass('star-hide');
+                        $('.star-uploader', rNode).show();
+                    }
+                }
+            };
+
+            var qiniu = new QiniuJsSDK();
+
+            qiniu.uploader(upParams);
+
+            $('#upform').on('submit', function(){
+
+                if(!uploaded){
+
+                    layer.alert('文件还未上传完成,请稍后提交', {icon: 5});
+
+                    return false;
+                }
+
+                return true;
+            })
+    })
+
+    $('.star-imagepath').delegate('.star-imagepreview', 'click', function(){
+
+        var _this = this;
+
+        var cnfbox = layer.confirm('确认删除当前文件吗?', {icon: 3, title: '删除确认'}, function(){
+
+            var previewBox = $(_this).parent('div');
+
+            $(_this).remove();
+
+            if(previewBox.find('.star-imagepreview').size() == 0){
+
+                previewBox.html('');
+            }
+
+            layer.close(cnfbox);
+
+            $('.star-uploader', $(previewBox).parent('div')).show();
+        });
+    })
+
+    reqCallback = function(ret){
+
+        layer.confirm("主播信息保存成功，需要录入更多主播吗？", {title:"系统提示", icon: 3}, function(){
+            top.location.reload();
+        }, function(){
+            top.location.href = '/admin/actor/index';
+        });
+    }
+
+    $('.newTalent, .newPlatform').on('click', function(){
+        var data  = $(this).data();
+        var popup = layer.prompt({formType: 0}, function(val, popup){
+            var param = {};
+            param[data.field] = val;
+            $.ajax({
+                url: data.url,
+                data: param,
+                dataType: 'json',
+                type: 'post',
+                success:function(ret){
+                    layer.close(popup);
+                    if(ret.code != 200){
+                        layer.msg("与服务器交换数据发生错误", {icon: 5});
+                        return;
+                    }
+                    $('<input name="' + data.field + '" value="' + val + '" type="checkbox"/>').appendTo($(data.target));
+                },
+                error: function(){
+                    layer.close(popup);
+                    layer.msg("与服务器交换数据发生错误", {icon: 5});
+                }
+            })
+        })
+    })
+})
+</script>>
+</define/>
