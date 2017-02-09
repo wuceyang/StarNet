@@ -47,7 +47,7 @@
 
             $stayCity  = trim($req->post('city'));
 
-            $birthDate = trim($req->posrt('birthday'));
+            $birthDate = trim($req->post('birthday'));
 
             $tall      = intval($req->post('tall'));
 
@@ -65,23 +65,23 @@
 
             $experience= $req->post('expr');
 
-            $photos    = $req->post('photos');
+            $photos    = $req->post('image');
 
             $video     = $req->post('video'); 
 
             if(!$actorName){
 
-                return $this->resp->error("主播姓名不能为空", 101);
+                return $this->error("主播姓名不能为空", 101);
             }
 
             if(!strtotime($startTime)){
 
-                return $this->resp->error("入职时间不能为空", 101);
+                return $this->error("入职时间不能为空" . $startTime, 101);
             }
 
             if(!$nickName){
 
-                return $this->resp->error("主播昵称不能为空", 101);
+                return $this->error("主播昵称不能为空", 101);
             }
 
             $actorInfo = [
@@ -109,35 +109,51 @@
 
             if(!$actor->insert($actorInfo)){
 
-                return $this->resp->error("主播信息保存失败", 201);
+                return $this->error("主播信息保存失败", 201);
             }
 
-            return $this->resp->success('','');
+            return $this->success('','');
         }
 
-        public function search(Request $req, Response $resp){
+        public function newTalent(Request $req, Response $resp){
 
-            $kw = trim($req->post('kw'));
+            $talent = trim($req->post('talent'));
 
-            if(!$kw){
+            if(!$talent){
 
                 return $this->success('','',[]);
             }
 
-            $actor      = new mActor();
+            $param = ['TalentName' => $talent];
 
-            $actors     = $actor->actorSearch($kw);
+            $mTalent = new Talent();
 
-            $actorlist  = [];
+            if(!$mTalent->insert($param)){
 
-            foreach($actors as $k => $v){
-
-                $actorlist[] = [
-                    'id'    => $v['aid'],
-                    'name'  => $v['nickname'],
-                ];
+                return $this->error('特长添加失败', 201);
             }
 
-            return $this->success('','', $actorlist);
+            return $this->success('','');
+        }
+
+        public function newPlatform(Request $req, Response $resp){
+
+            $platform = trim($req->post('platform'));
+
+            if(!$platform){
+
+                return $this->success('','',[]);
+            }
+
+            $param = ['Platform' => $platform];
+
+            $mPlatform = new LivePlatform();
+
+            if(!$mPlatform->insert($param)){
+
+                return $this->error('直播平台添加失败' . var_export($mPlatform->getError(), true), 201);
+            }
+
+            return $this->success('','');
         }
     }

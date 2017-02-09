@@ -5,11 +5,11 @@
   <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px; margin-right: 120px;">
     <legend>新增主播</legend>
   </fieldset>
-  <form class="layui-form" action="/admin/content/publish" method="post">
+  <form class="layui-form" action="/admin/actor/add-new" method="post">
     <div class="layui-form-item">
         <label class="layui-form-label">姓名:</label>
         <div class="layui-input-inline">
-            <input type="text" name="title" lay-verify="title" autocomplete="off" class="layui-input">
+            <input type="text" name="name" lay-verify="name" autocomplete="off" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
@@ -72,32 +72,34 @@
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">直播平台:</label>
-        <div class="layui-input-block">
+        <div class="layui-input-block" id="platform">
             <loop $platform $k $v/>
-            <input type="checkbox" name="type" value="<=$v.Platform/>" title="<=$v.Platform/>"/>
+            <input type="checkbox" name="platform[]" value="<=$v.Platform/>" title="<=$v.Platform/>"/>
             </loop/>
-            <button type="button" data-field="platform" data-url="/admin/actor/new-platform" class="layui-btn layui-btn-small newPlatform">新增</button>
+            <button type="button" data-target="#platform" data-field="platform" data-url="/admin/actor/new-platform" class="layui-btn layui-btn-small star-bottom newPlatform">新增</button>
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">直播人气:</label>
         <div class="layui-input-inline">
-            <input type="text" name="hotdegree" autocomplete="off" class="layui-input star-date" value="">
+            <input type="text" name="hotdegree" autocomplete="off" class="layui-input star-date star-left" value="">
+            <div class="layui-form-mid layui-word-aux"> &nbsp; 万</div>
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">粉丝关注:</label>
         <div class="layui-input-inline">
-            <input type="text" name="follower" autocomplete="off" class="layui-input star-date" value="">
+            <input type="text" name="follower" autocomplete="off" class="layui-input star-date star-left" value="">
+            <div class="layui-form-mid layui-word-aux"> &nbsp; 万</div>
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">直播特长:</label>
-        <div class="layui-input-block">
+        <div class="layui-input-block" id="talent">
             <loop $talent $k $v/>
-            <input type="checkbox" name="type" value="<=$v.TalentName/>" title="<=$v.TalentName/>"/>
+            <input type="checkbox" name="talent[]" value="<=$v.TalentName/>" title="<=$v.TalentName/>"/>
             </loop/>
-            <button type="button" data-field="talent" data-url="/admin/actor/new-talent" class="layui-btn layui-btn-small newTalent">新增</button>
+            <button type="button" data-target="#talent" data-field="talent" data-url="/admin/actor/new-talent" class="layui-btn layui-btn-small star-bottom newTalent">新增</button>
         </div>
     </div>
     <div class="layui-form-item">
@@ -109,10 +111,10 @@
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">个人照片:</label>
-        <div class="layui-input-inline" id="image">
+        <div class="layui-input-block" id="image">
             <div class="star-imagepath star-dash star-left star-hide"></div>
             <div class="star-left star-uploadbox">
-                <div class="star-uploader star-dash" data-bucket="image" id="imageuploader"><i class="layui-icon">&#xe61f;</i></div>
+                <div class="star-uploader star-dash" data-max="9" data-bucket="image" id="imageuploader"><i class="layui-icon">&#xe61f;</i></div>
             </div>
         </div>
     </div>
@@ -121,7 +123,7 @@
         <div class="layui-input-inline" id="video">
             <div class="star-imagepath star-dash star-left star-hide"></div>
             <div class="star-left star-uploadbox">
-                <div class="star-uploader star-dash" data-bucket="video" id="videouploader"><i class="layui-icon">&#xe61f;</i></div>
+                <div class="star-uploader star-dash" data-max="1" data-bucket="video" id="videouploader"><i class="layui-icon">&#xe61f;</i></div>
             </div>
         </div>
     </div>
@@ -168,6 +170,7 @@ layui.use(['jquery', 'layer', 'upload', 'form','layedit', 'laydate'], function()
         //标记是否上传完成，未完成则不能提交表单
         var uploaded = true;
         var bucket   = $(this).data('bucket');
+        var max      = $(this).data('max'); 
         var thisId   = $(this).attr('id');
         var pNode    = $(this).parent('div')[0];
         var rNode    = $(pNode).parent('div');
@@ -193,28 +196,31 @@ layui.use(['jquery', 'layer', 'upload', 'form','layedit', 'laydate'], function()
                     },
                     BeforeUpload: function(){
                         uploaded = false;
-                        $('<div class="star-imagepreview star-left"><div class="star-progressbox"><div class="star-progressbar"></div></div></div>').appendTo($('.star-imagepath', rNode));
+                        $('<div class="star-imagepreview star-left"><div class="star-progressbox"><div class="star-progressbar"></div></div></div>').prependTo($('.star-imagepath', rNode));
                         $('.star-imagepath', rNode).removeClass('star-hide');
                     },
                     FileUploaded: function(uploader, fileinfo, retinfo){
                         retinfo = $.parseJSON(retinfo);
                         uploaded        = true;
                         var preview     = [];
-                        var fieldName   = bucket;
-                        var url = buckets[bucket] + '/' + retinfo.key;
-                        var previewhtml = '<img src="' + url + '"/>';
-                            preview.push('<div title="点击删除当前项" class="star-imagepreview" data-id="' + fileinfo.id + '"><input type="hidden" name="' + fieldName + '" value="' + url + '">' + previewhtml + '</div>');
-                        $('.star-imagepath').html($(preview.join('') + '<div class="star-clear"></div>'));
-                        $('.star-uploader', rNode).hide();
+                        var fieldName   = bucket == 'image' ? 'image[]' : bucket;
+                        var url         = buckets[bucket] + '/' + retinfo.key;
+                            preview.push('<div title="点击删除当前项" class="star-imagepreview star-left" data-id="' + fileinfo.id + '"><input type="hidden" name="' + fieldName + '" value="' + url + '"><img src="' + url + '"/></div>');
+                            $('.star-imagepreview:first',rNode).replaceWith(preview);
+                        if(max <= $('.star-imagepath', rNode).find('div.star-imagepreview').size()){
+                            $('.star-uploader', rNode).hide();
+                        }
                     },
                     UploadProgress: function(uploader, info){
                         $('.star-progressbar', rNode).css({'width': info.percent + '%'});
                     },
                     Error: function(){
                         layer.msg('图片上传失败啦', {icon: 5});
-                        $('.star-imagepath', rNode).html('');
-                        $('.star-imagepath', rNode).addClass('star-hide');
-                        $('.star-uploader', rNode).show();
+                        $('div.star-imagepath div.star-imagepreview:first', rNode).remove();
+                        if($('div.star-imagepath div.star-imagepreview', rNode).size() == 0){
+                            $('.star-imagepath', rNode).html('');
+                            $('.star-imagepath', rNode).addClass('star-hide');
+                        }
                     }
                 }
             };
@@ -267,6 +273,7 @@ layui.use(['jquery', 'layer', 'upload', 'form','layedit', 'laydate'], function()
     }
 
     $('.newTalent, .newPlatform').on('click', function(){
+        var _this = this;
         var data  = $(this).data();
         var popup = layer.prompt({formType: 0}, function(val, popup){
             var param = {};
@@ -282,7 +289,9 @@ layui.use(['jquery', 'layer', 'upload', 'form','layedit', 'laydate'], function()
                         layer.msg("与服务器交换数据发生错误", {icon: 5});
                         return;
                     }
-                    $('<input name="' + data.field + '" value="' + val + '" type="checkbox"/>').appendTo($(data.target));
+                    $('<input name="' + data.field + '" value="' + val + '" type="checkbox" title="' + val + '"/>').prependTo($(data.target));
+
+                    form.render('checkbox');
                 },
                 error: function(){
                     layer.close(popup);

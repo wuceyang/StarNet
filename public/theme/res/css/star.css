@@ -41,11 +41,12 @@
 	background-color: #FFF;
 }
 .star-imagepath{
-
+	margin: 0px -5px;
 }
 .star-imagepreview{
 	width: 80px;
 	height: 60px;
+	margin: 0px 5px;
 }
 .star-imagepreview img{
 	width: 100%;
@@ -63,6 +64,9 @@
 	margin-left: 40px;
 }
 /************公共属性***************/
+.star-bottom{
+	vertical-align: bottom;
+}
 .star-left{
 	float: left;
 }
