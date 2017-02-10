@@ -1,0 +1,258 @@
+<extend from="admin/base.html"/>
+
+<define name="content"/>
+<div class="star-text">
+  <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px; margin-right: 120px;">
+    <legend>主播列表</legend>
+  </fieldset>
+  <span class="star-tool">
+  <button class="layui-btn layui-btn-normal" data-max="1" id="addnewbtn" data-bucket="image"><i class="layui-icon">&#xe642;</i> 图片添加</button>
+  </span>
+  <table class="layui-table" lay-skin="line">
+    <colgroup>
+      <col width="50">
+      <col width="500">
+      <col width="100">
+      <col width="150">
+      <col width="100">
+      <col width="200">
+      <col>
+    </colgroup>
+    <thead>
+      <tr>
+        <th>姓名</th>
+        <th>性别</th>
+        <th>入职时间</th>
+        <th>签约</th>
+        <th>昵称</th>
+        <th>城市</th>
+        <th>出生日期</th>
+        <th>身高</th>
+        <th>联系方式</th>
+        <th>微信</th>
+        <th>直播平台</th>
+        <th>人气</th>
+        <th>关注</th>
+        <th>直播特长</th>
+        <th>项目</th>
+        <th>视频照片</th>
+      </tr> 
+    </thead>
+    <tbody>
+      <loop $list $k $v/>
+        <tr>
+            <td><=$v.ID/></td>
+            <td><=$v.Path/></td>
+            <td><=isset($positionText[$v.Position]) ? $positionText[$v.Position] : ''/></td>
+            <td><=$v.CreateTime/></td>
+            <td><=isset($uploader[$v.CreatorID]) ? $uploader[$v.CreatorID]['UserName'] : '-'/></td>
+            <td>
+                <button data-id="<=$v.ID/>" class="layui-btn layui-btn-danger layui-btn-small delbtn"><i class="layui-icon">&#xe640;</i> 删除</button>
+                <button data-url="<=$v.Path/>" class="layui-btn layui-btn-warm layui-btn-small previewbtn"><i class="layui-icon">&#xe64a;</i> 预览</button>
+            </td>
+            </tr>
+        </loop/>
+    </tbody>
+  </table>
+  <div class="star-page">
+        <div class="layui-box layui-laypage layui-laypage-default star-left">
+        <=$pageParam.pageStr/>
+        </div>
+        <div class="star-right star-total">共计<=$pageParam.totalRecord/>条，当前<=$pageParam.curPage/>/<=$pageParam.totalPage/>页</div>
+        <div class="star-clear"></div>
+  </div>
+</div>
+</define/>
+
+<define name="css"/>
+<link rel="stylesheet" href="<=__RESPATH__/>/theme/res/css/star.css"/>
+</define/>
+
+<define name="js"/>
+<script type="text/javascript" src="<=__RESPATH__/>/plugin/qiniu/pupload/moxie.js"></script>
+<script type="text/javascript" src="<=__RESPATH__/>/plugin/qiniu/qiniu.cs.js"></script>
+<script type="text/javascript" src="<=__RESPATH__/>/plugin/qiniu/pupload/pupload.cs.js"></script>
+<script type="text/javascript">
+layui.use(['jquery', 'layer', 'upload', 'form'], function(){
+
+    var $ = layui.jquery, layer = layui.layer, form = layui.form();
+
+    $('.previewbtn').on('click', function(){
+
+        var imgpath = $(this).data('url');
+
+        layer.open({
+          type: 1,
+          title: "图片预览",
+          closeBtn: 0,
+          skin: 'layui-layer-nobg', //没有背景色
+          shadeClose: true,
+          content: '<img src="' + imgpath + '"/>',
+          scrollbar : false
+        });
+    });
+
+    var buckets = {
+                image: 'http://oh0w1vops.bkt.clouddn.com',
+                video: 'http://oh0xnhx0h.bkt.clouddn.com',
+                audio: 'http://oistx3ss2.bkt.clouddn.com',
+                other: 'http://oh0x57g5y.bkt.clouddn.com',
+              };
+    //已删除的文件
+    var deletefile = {};
+
+    var position = <=$positionText ? json_encode($positionText) : '{}'/>;
+
+    $('#addnewbtn').on('click', function(){
+
+        var _this = this;
+
+        var positions = '<select name="position">';
+
+        for(var i in position){
+
+            positions += '<option value="' + i + '">' + position[i] + '</option>';
+        }
+
+        positions += '</select>';
+
+        var addHtml = '<div class="layui-form-item"><label class="layui-form-label">显示位置:</label><div class="layui-input-block"><div class="star-select100">' + positions + '</div></div></div>';
+
+        addHtml += '<div class="layui-form-item"><label class="layui-form-label">选择图片:</label><div class="layui-input-block" id="uprow"><div class="star-imagepath star-dash star-left star-hide"></div><div class="star-uploader star-dash star-left" id="uploader"><i class="layui-icon">&#xe61f;</i></div></div></div>';
+
+        addHtml += '<div class="layui-form-item"><label class="layui-form-label"> &nbsp; </label><div class="layui-input-block"><button id="okbtn" type="submit" class="layui-btn layui-btn-normal">确定</button> &nbsp; <button class="layui-btn layui-btn-danger" type="button" id="cancelbtn">取消</button></div></div>';
+        //标记是否上传完成，未完成则不能提交表单
+        var uploaded = true;
+
+        var popbox = layer.open({
+          type: 1,
+          title: "图片上传",
+          closeBtn: 1,
+          area: ['650px'],
+          skin: 'star-bgwhite', //没有背景色
+          shadeClose: false,
+          content: '<div class="star-uploadbox layui-form"><form id="upform" method="post" action="/admin/advertise/add-adv">' + addHtml + '</form></div>',
+          scrollbar : false,
+          id: 'uploadbox',
+          success: function(){
+            var bucket   = $(_this).data('bucket');
+            var thisId   = $(_this).attr('id');
+            var max      = parseInt($(this).data('max'), 10);
+            var upParams = {
+                    runtimes: 'html5,flash,html4',      // 上传模式,依次退化
+                    uptoken_url: '/admin/upload/token?bucket=' + bucket,
+                    get_new_uptoken: true,
+                    multi_selection: false,
+                    unique_names: true,
+                    domain: buckets[bucket],
+                    max_file_size: '100mb',
+                    flash_swf_url: '<=__RESPATH__/>/plugin/qiniu/pupload/moxie.swf',
+                    silverlight_xap_url : '<=__RESPATH__/>/plugin/qiniu/pupload/moxie.xap',
+                    max_retries: 3,
+                    chunk_size: '4mb',
+                    unique_names: true,
+                    auto_start: true,
+                    container: 'uprow',
+                    browse_button: 'uploader',
+                    init:{
+                        FileUploaded: function(uploader, fileinfo){
+                            
+                        },
+                        BeforeUpload: function(){
+                            uploaded = false;
+                            $('<div class="star-imagepreview star-left"><div class="star-progressbox"><div class="star-progressbar"></div></div></div>').appendTo($('.star-imagepath'));
+                            $('.star-imagepath').removeClass('star-hide');
+                        },
+                        UploadComplete: function(uploader, fileinfo){
+                            uploaded        = true;
+                            var preview     = [];
+                            var fieldName   = 'image';
+                            for(var i in fileinfo){
+                                if(deletefile[fileinfo[i].id]) continue;
+                                var url = buckets[bucket] + '/' + fileinfo[i].target_name;
+                                var previewhtml = '<img src="' + url + '"/>';
+                                preview.push('<div title="点击删除当前项" class="star-imagepreview" data-id="' + fileinfo[i].id + '"><input type="hidden" name="' + fieldName + '" value="' + url + '">' + previewhtml + '</div>');
+                            }
+                            $('.star-imagepath').html($(preview.join('') + '<div class="star-clear"></div>'));
+                            var max = $(_this).data('max');
+                            //达到最大值，隐藏上传按钮
+                            if(max > 0 && $('.star-imagepreview').size() >= max){
+                                $('.star-uploader').hide();
+                                return;
+                            }
+                        },
+                        UploadProgress: function(uploader, info){
+                            $('.star-progressbar').css({'width': info.percent + '%'});
+                        },
+                        Error: function(){
+                            layer.msg('图片上传失败啦', {icon: 5});
+                        }
+                    }
+                };
+
+                var qiniu = new QiniuJsSDK();
+
+                qiniu.uploader(upParams);
+
+                form.render('select');
+
+                $('#cancelbtn').on('click', function(){
+
+                    layer.close(popbox);
+                });
+
+                $('#upform').on('submit', function(){
+
+                    if(!uploaded){
+
+                        layer.alert('文件还未上传完成,请稍后提交', {icon: 5});
+
+                        return false;
+                    }
+
+                    return true;
+                })
+          }
+        });
+    })
+
+    $('.delbtn').on('click', function(){
+
+        var advId = $(this).data('id');
+
+        var popbox = layer.confirm('确定要删除当前图片吗？', {icon: 3, title: '删除确认'}, function(){
+
+            $.ajax({
+
+                url: '/admin/advertise/remove-adv?id=' + advId,
+
+                dataType: 'json',
+
+                success: function(ret){
+
+                    if(ret.code = 200){
+
+                        layer.close(popbox);
+
+                        layer.msg("图片删除成功", {icon: 6, title: '操作结果'}, function(){
+
+                            top.location.reload();
+                        });
+
+                        return;
+                    }
+
+                    layer.alert(ret.message || '删除图片出错啦', {icon: 5});
+                },
+                
+                error: function(){
+
+                    layer.alert('删除图片出错啦', {icon: 5});
+                }
+            })
+        });
+    });
+
+})
+</script>>
+</define/>

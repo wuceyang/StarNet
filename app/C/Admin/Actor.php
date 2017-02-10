@@ -10,6 +10,75 @@
 
     class Actor extends Base{
 
+        public function index(Request $req, Response $resp){
+
+            $pagesize = 20;
+
+            $page    = max(1, intval($req->get('gender')));
+
+            $gender  = intval($req->get('gender'));
+
+            $mintall = intval($req->get('mintall'));
+
+            $maxtall = intval($req->get('maxtall'));
+
+            $city    = trim($req->get('city'));
+
+            $talent  = intval($req->get('talent'));
+
+            $mTalent = new mTalent();
+
+            $talents = $mTalent->getList();
+
+            $actor   = new mActor();
+
+            $total   = 0;
+
+            $actress = $actor->getQualifiedActress($gender, $mintall, $maxtall, $city, $talent, $page, $pagesize);
+
+            if($actress){
+
+                $total = $actor->getTotalQualifiedActress($gender, $mintall, $maxtall, $city, $talent);
+            }
+
+            $param = [];
+
+            if($gender){
+
+                $param['gender'] = $gender;
+            }
+
+            if($mintall){
+
+                $param['mintall'] = $mintall;
+            }
+
+            if($maxtall){
+
+                $param['maxtall'] = $maxtall;
+            }
+
+            if($city){
+
+                $param['city'] = $city;
+            }
+
+            if($talent){
+
+                $param['talent'] = $talent;
+            }
+
+            $pageParams = $this->getPageInfo('/admin/actor/index', $page, $total, $param, $pagesize);
+
+            $htmlParam  = [
+                        'pageParam' => $pageParams,
+                        'total'     => $total,
+                        'list'      => $actress,
+                    ];
+
+            return $resp->withView('admin/actor_list.html')->withVars($htmlParam)->display();
+        }
+
         public function addnew(Request $req, Response $resp){
 
             if(!$req->isPost()){

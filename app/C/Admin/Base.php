@@ -241,7 +241,7 @@
 						[
 							'text' => '主播管理',
 							'icon' => '&#xe61b;',
-							'flag' => 'actress',
+							'flag' => 'actor',
 							'sub'  => [
 										'新增主播' => '/admin/actor/addnew',
 										'主播列表' => '/admin/actor/index',
