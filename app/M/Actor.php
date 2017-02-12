@@ -7,6 +7,8 @@
 
      	public function getQualifiedActress($gender, $mintall, $maxtall, $city, $talent, $page, $pagesize){
 
+     		$where = $param = [];
+
      		if($gender){
 
      			$where[] = 'Gender = ?';
@@ -39,7 +41,7 @@
 
      			$where[] = 'Talent LIKE ?';
 
-     			$param[] = '%' . addcslashes($talent, '%_') . '%'
+     			$param[] = '%' . addcslashes($talent, '%_') . '%';
      		}
 
      		if($where){
@@ -52,6 +54,8 @@
 
      	public function getTotalQualifiedActress($gender, $mintall, $maxtall, $city, $talent){
 
+     		$where = $param = [];
+
      		if($gender){
 
      			$where[] = 'Gender = ?';
@@ -84,7 +88,7 @@
 
      			$where[] = 'Talent LIKE ?';
 
-     			$param[] = '%' . addcslashes($talent, '%_') . '%'
+     			$param[] = '%' . addcslashes($talent, '%_') . '%';
      		}
 
      		if($where){
@@ -93,5 +97,10 @@
      		}
 
      		return $this->getCount();
-     	}   
+     	} 
+
+     	public function searchActress($kw, $number){
+
+     		return $this->where('NickName LIKE ?', ['%' . addcslashes($kw, '%_') . '%'])->pagesize($number)->getRows();
+     	}  
     }

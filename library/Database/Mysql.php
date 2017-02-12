@@ -103,7 +103,14 @@
         /**
          * 说明:切换数据表
          */
-		public function table($tableName){
+		public function table($tableName = ''){
+
+            if(!$tableName){
+
+                $dbConfig = \Config::get('database.mysql');
+
+                return $dbConfig['tablePrefix'] . $this->_table;
+            }
 
 			$this->_table = $tableName;
 

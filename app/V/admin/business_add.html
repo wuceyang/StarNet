@@ -1,0 +1,165 @@
+<extend from="admin/base.html"/>
+
+<define name="content"/>
+<div class="star-text">
+  <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px; margin-right: 120px;">
+    <legend>新增合作</legend>
+  </fieldset>
+  <form class="layui-form" action="/admin/business/addnew" method="post">
+    <div class="layui-form-item">
+        <label class="layui-form-label">项目名称:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="proname" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">发布时间:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="pubtime" value="" lay-verify="date" autocomplete="off" class="layui-input star-date" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">推荐主播:</label>
+        <div class="layui-input-inline">
+            <label class="star-suggest">
+                <input type="text" name="recommend" autocomplete="off" class="layui-input star-date" value="" data-url="/admin/actor/search">
+            </label>
+        </div>
+    </div>
+    <div class="layui-form-item star-hide" id="selectedActress">
+        <label class="layui-form-label">已选定:</label>
+        <div class="layui-input-block">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn layui-btn-normal layui-btn-big submitbtn"> 保 存 </button>
+        </div>
+    </div>
+  </form>
+</div>
+</define/>
+
+<define name="css"/>
+<link rel="stylesheet" href="<=__RESPATH__/>/theme/res/css/star.css"/>
+</define/>
+
+<define name="js"/>
+<script type="text/javascript" src="<=__RESPATH__/>/plugin/qiniu/pupload/moxie.js"></script>
+<script type="text/javascript" src="<=__RESPATH__/>/plugin/qiniu/qiniu.cs.js"></script>
+<script type="text/javascript" src="<=__RESPATH__/>/plugin/qiniu/pupload/pupload.cs.js"></script>
+<script type="text/javascript">
+
+layui.use(['jquery', 'layer', 'upload', 'form','layedit', 'laydate'], function(){
+
+    var $ = layui.jquery, layer = layui.layer, form = layui.form(), editor = layui.layedit;
+
+    $('input[name=pubtime]').on('click', function(){
+
+        layui.laydate({elem: this});
+    });
+
+    $('input[name=recommend').on('input', function(){
+
+        var kw = $.trim($(this).val());
+
+        if(kw.length == 0){
+
+            return;
+        }
+
+        var data = $(this).data();
+
+        $.ajax({
+            url: data.url,
+            data: {kw: kw},
+            dataType: 'json',
+            type: 'post',
+            success: function(ret){
+
+                var actors = [];
+
+                if(ret.data){
+
+                    actors.push('<ul>');
+
+                    for(var i in ret.data){
+
+                        var cls = i == 0 ? ' class="star-active"' : '';
+
+                        actors.push('<li data-actress="' + ret.data[i].name + '" data-id="' + ret.data[i].id + '"' + cls + '>' + ret.data[i].name + '</li>');
+                    }
+
+                    actors.push('</ul>');
+                }
+
+                var box = $('.star-suggest');
+
+                $('ul', box).remove();
+
+                if(actors){
+
+                    $(box).append(actors.join(''));
+
+                    $('ul', box).show();
+                }
+
+            },
+            error: function(){
+
+            }
+        });
+    })
+
+    $('.star-suggest').delegate('ul>li','click', function(){
+
+        var data = $(this).data();
+
+        $('#selectedActress').removeClass('star-hide');
+
+        actrees = '<span class="star-item"><input name="actrees[]" type="hidden" value="' + data.id + '"><span class="star-text">' + data.actress + '</span><i class="layui-icon star-item-remover" title="删除当前主播">&#xe640;</i></span>';
+
+        $(actrees).appendTo($('#selectedActress .layui-input-block'));
+
+        $(this).closest('.star-suggest').find('input').val('');
+
+        $(this).closest('ul').remove();
+    })
+
+    $('.star-suggest').delegate('ul>li','mouseenter', function(){
+
+        $(this).closest('ul').find('li').removeClass('star-active');
+
+        $(this).addClass('star-active');
+    })
+
+    $('#selectedActress').delegate('.star-item-remover', 'click', function(){
+
+        if($(this).closest('div').find('.star-item').size() == 1){
+
+            $('#selectedActress').addClass('star-hide');
+        }
+
+        $(this).closest('.star-item').remove();
+    });
+
+    reqCallback = function(ret){
+
+        var msg = ret.message;
+
+        if(ret.code == 200){
+
+            var msg = '合作信息录入成功，需要录入更多合作信息吗?'
+        }
+
+        layer.confirm(msg, {title:"系统提示", icon: 6}, function(){
+
+            location.reload();
+        }, function(){
+
+            location.href = '/admin/business/index';
+        });
+    }
+})
+</script>>
+</define/>

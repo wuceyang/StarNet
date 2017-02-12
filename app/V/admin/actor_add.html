@@ -150,7 +150,7 @@ layui.use(['jquery', 'layer', 'upload', 'form','layedit', 'laydate'], function()
 
     var $ = layui.jquery, layer = layui.layer, form = layui.form(), editor = layui.layedit;
 
-    $('input[name=date]').on('click', function(){
+    $('input[name=date], input[name=birthday], input[name=start]').on('click', function(){
 
         layui.laydate({elem: this});
     });

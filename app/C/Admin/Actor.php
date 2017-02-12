@@ -26,7 +26,7 @@
 
             $talent  = intval($req->get('talent'));
 
-            $mTalent = new mTalent();
+            $mTalent = new Talent();
 
             $talents = $mTalent->getList();
 
@@ -74,6 +74,7 @@
                         'pageParam' => $pageParams,
                         'total'     => $total,
                         'list'      => $actress,
+                        'gender'    => Enum::Gender,
                     ];
 
             return $resp->withView('admin/actor_list.html')->withVars($htmlParam)->display();
@@ -224,5 +225,31 @@
             }
 
             return $this->success('','');
+        }
+
+        public function search(Request $req, Response $resp){
+
+            $num    = 10;
+
+            $kw     = trim($req->post('kw'));
+
+            if(!$kw){
+
+                return $this->error('请输入关键词', 101);
+            }
+
+            $retdata     = [];
+
+            $actress     = new mActor();
+
+            $actresslist = $actress->searchActress($kw, $num);
+
+            foreach ($actresslist as $k => $v) {
+                
+                $retdata[] = ['id' => $v['ID'], 'name' => $v['NickName']];
+            }
+
+            return $this->success('', '', $retdata);
+            // return $this->success('', '', var_export($actress->getSqls(), true));
         }
     }

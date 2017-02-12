@@ -130,7 +130,7 @@
         public function server($paramName = '', $defaultValue = ''){
             if(!$paramName) return $this->_server;
             $key = strtoupper($paramName);
-            return $this->_server[$key] ? $this->_server[$key] : $defaultValue;
+            return isset($this->_server[$key]) ? $this->_server[$key] : $defaultValue;
         }
 
         public function session(){

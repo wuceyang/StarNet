@@ -1,0 +1,105 @@
+<extend from="admin/base.html"/>
+
+<define name="content"/>
+<div class="star-text">
+  <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px; margin-right: 120px;">
+    <legend>合作列表</legend>
+  </fieldset>
+  <span class="star-tool">
+  <a class="layui-btn layui-btn-normal" href="/admin/business/addnew"><i class="layui-icon">&#xe642;</i> 新增合作</a>
+  </span>
+  <table class="layui-table" lay-skin="line">
+    <colgroup>
+      <col width="50">
+      <col width="100">
+      <col width="200">
+      <col width="350">
+      <col width="150">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>发布时间</th>
+        <th>推荐主播</th>
+        <th>项目名称</th>
+        <th>操作</th>
+      </tr> 
+    </thead>
+    <tbody>
+      <loop $list $k $v/>
+        <tr>
+            <td><=$v.ID/></td>
+            <td><=date('Y-m-d', strtotime($v.PublishTime))/></td>
+            <td><=$v.RecommendActress/></td>
+            <td><=$v.ProjectName/></td>
+            <td>
+                <button data-id="<=$v.ID/>" class="layui-btn layui-btn-danger layui-btn-small delbtn"><i class="layui-icon">&#xe640;</i> 删除</button>
+                <a href="/admin/business/edit?id=<=$v.ID/>" class="layui-btn layui-btn-warm layui-btn-small previewbtn"><i class="layui-icon">&#xe64a;</i> 修改</a>
+            </td>
+            </tr>
+        </loop/>
+        <if !$list/>
+        <tr>
+            <td colspan="5" align="center">当前暂无数据</td>
+        </tr>
+        </if/>
+    </tbody>
+  </table>
+  <div class="star-page">
+        <div class="layui-box layui-laypage layui-laypage-default star-left">
+        <=$pageParam.pageStr/>
+        </div>
+        <div class="star-right star-total">共计<=$pageParam.totalRecord/>条，当前<=$pageParam.curPage/>/<=$pageParam.totalPage/>页</div>
+        <div class="star-clear"></div>
+  </div>
+</div>
+</define/>
+
+<define name="css"/>
+<link rel="stylesheet" href="<=__RESPATH__/>/theme/res/css/star.css"/>
+</define/>
+
+<define name="js"/>
+<script type="text/javascript">
+  layui.use(['jquery', 'layer',], function(){
+
+    var $ = layui.jquery;
+
+    $('.delbtn').on('click', function(){
+
+        var id = $(this).data('id');
+
+        layer.confirm('确定删除当前的商务合作信息吗?', {title: '删除确认'}, function(){
+
+            $.ajax({
+                url: '/admin/business/remove',
+                data: {id: id},
+                dataType: 'json',
+                type: 'post',
+                success: function(ret){
+
+                    if(ret.code == 200){
+
+                        layer.msg('删除商务合作信息成功', {icon: 3});
+
+                        setTimeout(function(){
+
+                            top.location.reload();
+
+                        }, 3000);
+
+                        return;
+                    }
+
+                    layer.msg(ret.message || '删除商务合作信息失败', {icon: 5});
+                },
+                error: function(){
+
+                    layer.msg('与服务器交互发生错误', {icon: 5});
+                }
+            });
+        });
+    });
+  })
+</script>
+</define/>

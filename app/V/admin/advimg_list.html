@@ -42,6 +42,11 @@
             </td>
             </tr>
         </loop/>
+        <if !$list/>
+        <tr>
+            <td colspan="6" align="center">当前暂无数据</td>
+        </tr>
+        </if/>
     </tbody>
   </table>
   <div class="star-page">
@@ -108,9 +113,9 @@ layui.use(['jquery', 'layer', 'upload', 'form'], function(){
 
         var addHtml = '<div class="layui-form-item"><label class="layui-form-label">显示位置:</label><div class="layui-input-block"><div class="star-select100">' + positions + '</div></div></div>';
 
-        addHtml += '<div class="layui-form-item"><label class="layui-form-label">选择图片:</label><div class="layui-input-block" id="uprow"><div class="star-imagepath star-dash star-left star-hide"></div><div class="star-uploader star-dash star-left" id="uploader"><i class="layui-icon">&#xe61f;</i></div></div></div>';
+        addHtml += '<div class="layui-form-item"><label class="layui-form-label">选择图片:</label><div class="layui-input-block" id="uprow"><div class="star-imagepath star-dash star-left star-hide"></div><div class="star-left star-uploadbox"><div class="star-uploader star-dash" data-bucket="image" id="imageuploader"><i class="layui-icon">&#xe61f;</i></div></div></div></div>';
 
-        addHtml += '<div class="layui-form-item"><label class="layui-form-label"> &nbsp; </label><div class="layui-input-block"><button id="okbtn" type="submit" class="layui-btn layui-btn-normal">确定</button> &nbsp; <button class="layui-btn layui-btn-danger" type="button" id="cancelbtn">取消</button></div></div>';
+        addHtml += '<div class="layui-form-item"><label class="layui-form-label"> &nbsp; </label><div class="layui-input-block"><button id="okbtn" type="submit" class="layui-btn layui-btn-normal star-left">确定</button><button class="layui-btn layui-btn-danger" type="button" id="cancelbtn">取消</button></div></div>';
         //标记是否上传完成，未完成则不能提交表单
         var uploaded = true;
 
@@ -118,7 +123,7 @@ layui.use(['jquery', 'layer', 'upload', 'form'], function(){
           type: 1,
           title: "图片上传",
           closeBtn: 1,
-          area: ['650px'],
+          area: ['650px', '250px'],
           skin: 'star-bgwhite', //没有背景色
           shadeClose: false,
           content: '<div class="star-uploadbox layui-form"><form id="upform" method="post" action="/admin/advertise/add-adv">' + addHtml + '</form></div>',

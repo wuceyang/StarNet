@@ -42,16 +42,30 @@
       <loop $list $k $v/>
         <tr>
             <td><=$v.ID/></td>
-            <td><=$v.Path/></td>
-            <td><=isset($positionText[$v.Position]) ? $positionText[$v.Position] : ''/></td>
-            <td><=$v.CreateTime/></td>
-            <td><=isset($uploader[$v.CreatorID]) ? $uploader[$v.CreatorID]['UserName'] : '-'/></td>
+            <td><=isset($gender[$v.Gender]) ? $gender[$v.Gender] : '-'/></td>
+            <td><=$v.HireDate/></td>
+            <td><=$v.ContractYears/></td>
+            <td><=$v.NickName/></td>
+            <td><=$v.WorkCity/></td>
+            <td><=$v.Birthday/></td>
+            <td><=$v.Height/></td>
+            <td><=$v.Mobile/></td>
+            <td><=$v.Wechat/></td>
+            <td><=$v.LivePlatform/></td>
+            <td><=$v.HotDegree/></td>
+            <td><=$v.TotalFans/></td>
+            <td><=$v.Talent/></td>
+            <td><=$v.Experience/></td>
             <td>
-                <button data-id="<=$v.ID/>" class="layui-btn layui-btn-danger layui-btn-small delbtn"><i class="layui-icon">&#xe640;</i> 删除</button>
-                <button data-url="<=$v.Path/>" class="layui-btn layui-btn-warm layui-btn-small previewbtn"><i class="layui-icon">&#xe64a;</i> 预览</button>
+                <button class="layui-btn layui-btn-warm layui-btn-small previewbtn"><i class="layui-icon">&#xe64a;</i> 点击查看</button>
             </td>
             </tr>
         </loop/>
+        <if !$list/>
+        <tr>
+            <td colspan="16" align="center">当前暂无数据</td>
+        </tr>
+        </if/>
     </tbody>
   </table>
   <div class="star-page">
@@ -100,8 +114,6 @@ layui.use(['jquery', 'layer', 'upload', 'form'], function(){
               };
     //已删除的文件
     var deletefile = {};
-
-    var position = <=$positionText ? json_encode($positionText) : '{}'/>;
 
     $('#addnewbtn').on('click', function(){
 
