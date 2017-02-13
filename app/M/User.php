@@ -15,19 +15,17 @@
             return $this->where('account = ? AND passwd = ?', [$account, $this->passwdEncrypt($account, $passwd)])->getRow();
         }
 
-        public function addUser($username, $account, $passwd, $groupid){
+        public function addUser($username, $account, $passwd, $mobile){
 
             $params = [
 
-                'account'   => $account,
+                'Account'   => $account,
 
-                'username'  => $username,
+                'UserName'  => $username,
 
-                'passwd'    => $this->passwdEncrypt($account, $passwd),
+                'Passwd'    => $this->passwdEncrypt($account, $passwd),
 
-                'group_id'  => ',' . implode(',', $groupid) . ',',
-
-                'reg_time'  => time(),
+                'Mobile'    => $mobile,
             ];
 
             return $this->insert($params);
@@ -35,23 +33,15 @@
 
         /**
          *获取用户列表
-         *@param int $groupId 用户所在分组
          *@return array
          */ 
-        public function userList($groupId, $status = null, $page = 0, $pagesize = 20){
+        public function userList($status = null, $page = 0, $pagesize = 20){
 
             $where = $param = [];
 
             if($status){
 
                 $where = ['status = ' . intval($status)];
-            }
-
-            if($groupId){
-
-                $where[] = 'group_id LIKE ?';
-
-                $param[] = '%,' . caddslahshes($groupId, '%-') . ',%';
             }
 
             $this->orderBy(['id DESC']);
@@ -74,17 +64,15 @@
             return $this->where('id = ?', [intval($userId)])->update($updateInfo);
         }
 
-        public function getTotalUser($groupId){
+        public function getTotalUser($status = null){
 
             $where = $param = [];
 
-            $where = ['status = 1'];
+            if($status && is_numeric($status)){
 
-            if($groupId){
+                $where[] = 'status = ?';
 
-                $where[] = 'group_id LIKE ?';
-
-                $param[] = '%,' . caddslahshes($groupId, '%-') . ',%';
+                $param[] = intval($status);
             }
 
             if($where){

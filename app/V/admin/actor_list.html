@@ -2,12 +2,58 @@
 
 <define name="content"/>
 <div class="star-text">
-  <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px; margin-right: 120px;">
-    <legend>主播列表</legend>
-  </fieldset>
-  <span class="star-tool">
-  <button class="layui-btn layui-btn-normal" data-max="1" id="addnewbtn" data-bucket="image"><i class="layui-icon">&#xe642;</i> 图片添加</button>
-  </span>
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px; margin-right: 120px;">
+        <legend>主播列表</legend>
+    </fieldset>
+    <span class="star-tool">
+        <button class="layui-btn layui-btn-normal" data-max="1" id="addnewbtn" data-bucket="image"><i class="layui-icon">&#xe642;</i> 图片添加</button>
+    </span>
+    <div class="layui-form-item">
+        <form action="/admin/actor/index" method="get">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width: 40px;">性别:</label>
+            <div class="layui-input-inline" style="width: 80px;">
+                <select name="gender" class="layui-input" lay-verify="">
+                    <option value="">选择性别</option>
+                    <loop $gender $k $v />
+                        <option value="<=$k/>"<=isset($get.gender) && $get.gender == $k ? ' selected' : ''/>><=$v/></option>
+                    </loop/>
+                </select>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width: 40px;">身高:</label>
+            <div class="layui-input-inline" style="width: 100px;">
+                <input type="text" name="mintall" value="<=isset($get.maxtall) ? $get.maxtall : ''/>" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid">-</div>
+            <div class="layui-input-inline" style="width: 100px;">
+                <input type="text" name="maxtall" value="<=isset($get.mintall) ? $get.mintall : ''/>" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid">厘米</div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width: 40px;">城市:</label>
+            <div class="layui-input-inline" style="width: 100px;">
+                <input name="city" value="<=isset($get.city) ? $get.city : ''/>" class="layui-input" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">直播特长:</label>
+            <div class="layui-input-inline" style="width: 80px;">
+                <select name="talent" class="layui-input" lay-verify="">
+                    <option value="">选择特长</option>
+                    <loop $talent $k $v />
+                        <option value="<=$v.ID/>" <=isset($get.talent) && $get.talent == $v.ID ? ' selected' : ''/>><=$v.TalentName/></option>
+                    </loop/>
+                </select>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <button class="layui-btn layui-btn-normal" type="submit">搜索</button>
+        </div>
+        </form>
+    </div>
   <table class="layui-table" lay-skin="line">
     <colgroup>
       <col width="50">

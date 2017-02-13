@@ -57,7 +57,8 @@
 			define('__RESPATH__', Config::get('global.resPrefix'));
 
 			$params = [
-						'menu' => $this->initSideBar(),
+						'menu' 		=> $this->initSideBar(),
+						'userinfo' 	=> $this->userinfo,
 					  ];
 
 			$resp->withVars($params);
@@ -258,9 +259,10 @@
 						[
 							'text' => '系统管理',
 							'icon' => '&#xe631;',
-							'flag' => 'system',
+							'flag' => 'user',
 							'sub'  => [
-										'系统管理' => '/admin/system/index',
+										'系统管理' => '/admin/user/index',
+										'修改密码' => '/admin/user/reset-pwd',
 									  ]
 						]
 					];

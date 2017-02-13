@@ -30,11 +30,20 @@
 
             $talents = $mTalent->getList();
 
+            $talentName = '';
+
+            if($talent){
+
+                $talentInfo = $mTalent->getInfoById($talent);
+
+                $talentName = $talentInfo ? $talentInfo['TalentName'] : '';
+            }
+
             $actor   = new mActor();
 
             $total   = 0;
 
-            $actress = $actor->getQualifiedActress($gender, $mintall, $maxtall, $city, $talent, $page, $pagesize);
+            $actress = $actor->getQualifiedActress($gender, $mintall, $maxtall, $city, $talentName, $page, $pagesize);
 
             if($actress){
 
@@ -75,6 +84,8 @@
                         'total'     => $total,
                         'list'      => $actress,
                         'gender'    => Enum::Gender,
+                        'talent'    => $talents,
+                        'get'       => $req->get(),
                     ];
 
             return $resp->withView('admin/actor_list.html')->withVars($htmlParam)->display();

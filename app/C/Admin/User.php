@@ -63,11 +63,11 @@
                 return $resp->withView('admin/reset_passwd.html')->display();
             }
 
-            $oldPass = trim($req->post('oldpass'));
+            $oldPass = trim($req->post('oldpwd'));
 
-            $newPass = trim($req->post('newpass'));
+            $newPass = trim($req->post('newpwd'));
 
-            $cnfPass = trim($req->post('cnfpass'));
+            $cnfPass = trim($req->post('cnfpwd'));
 
             if(!$oldPass){
 
@@ -91,20 +91,25 @@
 
             $user = new mUser();
 
-            if($this->userinfo['passwd'] != $user->passwdEncrypt($this->userinfo['account'],$oldPass)){
+            if($this->userinfo['Passwd'] != $user->passwdEncrypt($this->userinfo['Account'],$oldPass)){
 
                 return $this->error("原始密码错误，请检查输入", 102);
             }
 
-            if(!$user->updateUserInfo($this->userinfo['id'], ['passwd' => $user->passwdEncrypt($this->userinfo['account'], $newPass)])){
+            if(!$user->updateUserInfo($this->userinfo['ID'], ['Passwd' => $user->passwdEncrypt($this->userinfo['Account'], $newPass)])){
 
                 return $this->error("密码更新失败", 201);
             }
 
-            return $this->success("密码更新成功", "/admin/user/index");
+            return $this->success("密码更新成功,您需要重新登录", "/admin/user/logout");
         }
 
-        public function allUser(Request $req, Response $resp){
+        public function index(Request $req, Response $resp){
+
+            if(!$this->userinfo['IsFixed']){
+
+                return $this->error('您无权限访问当前页面', 403);
+            }
 
             $page       = intval($req->get('page'));
 
@@ -116,70 +121,38 @@
 
             $groupId    = [];
 
-            $userList   = $user->userList(null, null, $page, $pagesize);
+            $userList   = $user->getList([], [], $page, $pagesize);
 
-            foreach ($userList as $k => $v) {
+            $totalUser  = $user->getTotal([], []);
 
-                $gid                        = explode(',', trim($v['group_id'], ','));
-                
-                $userList[$k]['groupid']   = $gid;
-
-                $groupId                    = array_merge($groupId, $gid);
-            }
-
-            $userGroup  = new UserGroup();
-
-            $groups     = $userGroup->getGroupsById($groupId);
-
-            foreach ($groups as $k => $v) {
-                
-                $groupMap[$v['id']] = $v['group_name'];
-            }
-
-            foreach ($userList as $k => $v) {
-                
-                $v['groups'] = [];
-
-                foreach ($v['groupid'] as $sk => $sv) {
-                    
-                    if(isset($groupMap[$sv])){
-
-                        $v['groups'][] = $groupMap[$sv];
-                    }
-                }
-
-                $userList[$k] = $v;
-            }
-
-            $totalUser  = $user->getTotalUser(null);
-
-            $pageInfo   = $this->getPageInfo("/admin/user/all-user", $page, $totalUser, [], $pagesize);
-
-            $allGroups  = $userGroup->getAllGroups();
+            $pageParam  = $this->getPageInfo("/admin/user/index", $page, $totalUser, [], $pagesize);
 
             $params = [
-                        'list'   => $userList,
-
-                        'groups' => $allGroups
+                        'list'      => $userList,
+                        'pageParam' => $pageParam,
+                        'total'     => $totalUser,
                       ];
-
-            $params = $params + $pageInfo;
 
             return $resp->withVars($params)->withView("admin/user_list.html")->display();
 
         }
 
-        public function addUser(Request $req, Response $resp){
+        public function addNew(Request $req, Response $resp){
 
-            $username = trim($req->post('username'));
+            if(!$this->userinfo['IsFixed']){
+
+                return $this->error('您无权限访问当前页面', 403);
+            }
+
+            $truename = trim($req->post('truename'));
             
             $account  = trim($req->post('account'));
 
-            $passwd   = trim($req->post('passwd'));
-            
-            $groupid  = $req->post('groupid');
+            $mobile   = trim($req->post('mobile'));
 
-            if(!$username){
+            $passwd   = trim($req->post('passwd'));
+
+            if(!$truename){
 
                 return $this->error('用户姓名不能为空', 101, 'javascript:history.back();');
             }
@@ -189,25 +162,21 @@
                 return $this->error('登录帐号不能为空', 101, 'javascript:history.back();');
             }
 
-            if(!$groupid){
+            if(!$passwd || strlen($passwd) < 6){
 
-                return $this->error('请给帐号设置分组', 101, 'javascript:history.back();');
+                return $this->error('请输入登录密码，不能少于6个自负', 101, 'javascript:history.back();');
             }
-
-            $groupid = array_map('intval', $groupid);
-
-            $groupid = array_unique($groupid);
 
             $user    = new mUser();
 
             $passwd  = $user->passwdEncrypt($account, $passwd);
 
-            if(!$user->addUser($username, $account, $passwd, $groupid)){
+            if(!$user->addUser($truename, $account, $passwd, $mobile)){
 
                 return $this->error('帐号添加失败', 101, 'javascript:history.back();');
             }
 
-            return $this->success('帐号添加成功', '/admin/user/all-user');
+            return $this->success('帐号添加成功', '/admin/user/index');
         }
 
         public function editUser(Request $req, Response $resp){
@@ -270,15 +239,15 @@
             return $this->success('帐号信息更新成功', 'javascript:history.back();');
         }
 
-        public function switchUser(Request $req, Response $resp){
+        public function switchStatus(Request $req, Response $resp){
 
-            $userid   = intval($req->post('id'));
+            $userid   = intval($req->get('id'));
             
-            $status   = intval($req->post('status'));
+            $status   = intval($req->get('status'));
 
             $user     = new mUser();
 
-            if(!in_array($status, [Enum::STATUS_NORMAL, Enum::STATUS_DISABLED])){
+            if(!in_array($status, [Enum::Status['normal'], Enum::Status['disable']])){
 
                 return $this->error('帐号目标状态不正确', 101, 'javascript:history.back();');
             }

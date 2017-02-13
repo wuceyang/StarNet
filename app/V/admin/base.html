@@ -28,6 +28,7 @@
       	<div class="layui-side-scroll">
     	  	<ul class="layui-nav layui-nav-tree site-demo-nav">
     	  	<loop $menu $k $v/>
+            <if isset($v.IsFixed) && $v.IsFixed && $userinfo.IsFixed || !isset($v.IsFxied)/>
             <li class="layui-nav-item<if preg_match('/(' . $v.flag . ')/i', $req->getController())/> layui-nav-itemed</if/>">
                 <a href="javascript:;">
                     <if $v.icon/><i class="layui-icon"><=$v.icon/></i></if/> &nbsp; <=$v.text/>
@@ -41,6 +42,7 @@
                 </loop/>
     		    </dl>
             </li>
+            </if/>
     	    </loop/>
     	  	</ul>
     	</div>
@@ -82,7 +84,10 @@ layui.define(['layer', 'code', 'form', 'element', 'util'], function(exports){
 
         if(beforeRequest && $.isFunction(beforeRequest)){
 
-            beforeRequest.call(dataform);
+            if(!beforeRequest.call(dataform)){
+
+                return false;
+            }
         }
 
         var method   = $(dataform).attr('method');
