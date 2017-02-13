@@ -104,7 +104,7 @@
 
             $content = new mContent();
 
-            if(!$content->addContent($title, $type, $image, $video, $date, $ishot, $text, $this->userinfo['ID'])){
+            if(!$content->addContent($title, $type, $image, $video, $date, $ishot == 'on' ? 1 : 0, $text, $this->userinfo['ID'])){
 
                 return $this->error("文章录入失败", "javascript:history.back()");
             }

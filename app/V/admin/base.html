@@ -85,7 +85,7 @@ layui.define(['layer', 'code', 'form', 'element', 'util'], function(exports){
         if(beforeRequest && $.isFunction(beforeRequest)){
 
             if(!beforeRequest.call(dataform)){
-
+                console.log(1);
                 return false;
             }
         }

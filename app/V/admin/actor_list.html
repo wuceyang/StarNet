@@ -9,10 +9,10 @@
         <button class="layui-btn layui-btn-normal" data-max="1" id="addnewbtn" data-bucket="image"><i class="layui-icon">&#xe642;</i> 图片添加</button>
     </span>
     <div class="layui-form-item">
-        <form action="/admin/actor/index" method="get">
+        <form class="layui-form" action="/admin/actor/index" method="get">
         <div class="layui-inline">
             <label class="layui-form-label" style="width: 40px;">性别:</label>
-            <div class="layui-input-inline" style="width: 80px;">
+            <div class="layui-input-inline" style="width: 100px;">
                 <select name="gender" class="layui-input" lay-verify="">
                     <option value="">选择性别</option>
                     <loop $gender $k $v />

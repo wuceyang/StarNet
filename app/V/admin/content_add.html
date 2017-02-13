@@ -75,6 +75,8 @@
 <script type="text/javascript" src="<=__RESPATH__/>/plugin/qiniu/pupload/pupload.cs.js"></script>
 <script type="text/javascript">
 
+var uploaded = true;
+
 layui.use(['jquery', 'layer', 'upload', 'form','layedit', 'laydate'], function(){
 
     var $ = layui.jquery, layer = layui.layer, form = layui.form(), editor = layui.layedit;
@@ -187,18 +189,6 @@ layui.use(['jquery', 'layer', 'upload', 'form','layedit', 'laydate'], function()
             var qiniu = new QiniuJsSDK();
 
             qiniu.uploader(upParams);
-
-            $('#upform').on('submit', function(){
-
-                if(!uploaded){
-
-                    layer.alert('文件还未上传完成,请稍后提交', {icon: 5});
-
-                    return false;
-                }
-
-                return true;
-            })
     })
 
     $('.star-imagepath').delegate('.star-imagepreview', 'click', function(){
@@ -248,6 +238,15 @@ layui.use(['jquery', 'layer', 'upload', 'form','layedit', 'laydate'], function()
         ele.val(content);
 
         $('.star-editor',this).append(ele);
+
+        if(!uploaded){
+
+            layer.alert('文件还未上传完成,请稍后提交', {icon: 5});
+
+            return false;
+        }
+
+        return true;
     }
 })
 </script>>
